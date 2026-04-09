@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
-    // In local dev, proxy /api to the FastAPI backend
+    // Only enable API proxy in local development
     // In production (Vercel), NEXT_PUBLIC_API_URL points directly to the backend
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
+    const backendUrl = process.env.BACKEND_URL;
+    if (!backendUrl) return [];
     return [
       { source: "/api/:path*", destination: `${backendUrl}/api/:path*` },
     ];
