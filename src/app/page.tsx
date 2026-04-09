@@ -5,8 +5,8 @@ import { api } from "@/lib/api";
 
 export default function LoginPage() {
   const { user, loading, login } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("goldman424@gmail.com");
+  const [password, setPassword] = useState("yachida0024");
   const [error, setError] = useState("");
 
   if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
