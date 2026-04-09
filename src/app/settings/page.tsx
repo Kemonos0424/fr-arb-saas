@@ -18,8 +18,8 @@ function SettingsContent() {
   const [keySaving, setKeySaving] = useState(false);
 
   useEffect(() => {
-    api.get<UserSettings>("/settings/").then(setSettings).catch(() => {});
-    api.get<ApiKeyStatus[]>("/keys/").then(setKeys).catch(() => {});
+    api.get<UserSettings>("/settings").then(setSettings).catch(() => {});
+    api.get<ApiKeyStatus[]>("/keys").then(setKeys).catch(() => {});
   }, []);
 
   if (!settings) {
@@ -34,7 +34,7 @@ function SettingsContent() {
     setSaving(true);
     setSaved(false);
     try {
-      const updated = await api.put<UserSettings>("/settings/", settings);
+      const updated = await api.put<UserSettings>("/settings", settings);
       setSettings(updated);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -48,7 +48,7 @@ function SettingsContent() {
     setKeySaving(true);
     try {
       await api.post(`/keys/${keyModal}`, keyForm);
-      const updated = await api.get<ApiKeyStatus[]>("/keys/");
+      const updated = await api.get<ApiKeyStatus[]>("/keys");
       setKeys(updated);
       setKeyModal(null);
       setKeyForm({ api_key: "", secret_key: "", passphrase: "", memo: "" });
@@ -60,14 +60,14 @@ function SettingsContent() {
   const verifyKey = async (exchange: string) => {
     try {
       await api.post(`/keys/${exchange}/verify`);
-      const updated = await api.get<ApiKeyStatus[]>("/keys/");
+      const updated = await api.get<ApiKeyStatus[]>("/keys");
       setKeys(updated);
     } catch { /* ignore */ }
   };
 
   const deleteKey = async (exchange: string) => {
     await api.delete(`/keys/${exchange}`);
-    const updated = await api.get<ApiKeyStatus[]>("/keys/");
+    const updated = await api.get<ApiKeyStatus[]>("/keys");
     setKeys(updated);
   };
 
