@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { AuthGuard } from "@/components/AuthGuard";
 import { api } from "@/lib/api";
-import type { UserSettings, ApiKeyStatus } from "@/lib/types";
+import type { User, UserSettings, ApiKeyStatus } from "@/lib/types";
 
 const EXCHANGES = ["bingx", "bitget", "bitmart"] as const;
 
-function SettingsContent() {
+function SettingsContent({ user }: { user: User }) {
+  const isPro = user.plan === "pro";
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [keys, setKeys] = useState<ApiKeyStatus[]>([]);
   const [saving, setSaving] = useState(false);
@@ -90,7 +91,8 @@ function SettingsContent() {
     <div className="space-y-6 py-6 max-w-3xl mx-auto">
       {/* API Keys */}
       <section className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-        <h2 className="text-lg font-semibold mb-4">Exchange API Keys</h2>
+        <h2 className="text-lg font-semibold mb-2">Exchange API Keys</h2>
+        <p className="text-xs text-gray-500 mb-4">取引所のAPI Key/Secretを登録すると、残高確認・自動発注が可能になります。読み取り専用権限でもスキャン機能は使えます。</p>
         <div className="space-y-3">
           {EXCHANGES.map((ex) => {
             const k = keys.find(k => k.exchange === ex);
@@ -176,10 +178,12 @@ function SettingsContent() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>Total Capital ($)</label>
+            <p className="text-xs text-gray-600 mb-1">運用に使う総資金額。ポジションサイズの上限計算に使用。</p>
             <input type="number" value={settings.total_capital} onChange={e => setSettings({...settings, total_capital: +e.target.value})} className={inputCls} />
           </div>
           <div>
             <label className={labelCls}>Leverage</label>
+            <p className="text-xs text-gray-600 mb-1">全取引に適用されるレバレッジ倍率。</p>
             <input type="number" value={settings.leverage} onChange={e => setSettings({...settings, leverage: +e.target.value})} className={inputCls} />
           </div>
           <div>
@@ -195,6 +199,7 @@ function SettingsContent() {
         {/* P1 */}
         <StrategySection
           title="P1: Intra-exchange USDT/USDC Cross"
+          description="同一取引所内のUSDT建てとUSDC建てのFR差を利用。価格変動リスクが最も低い戦略です。"
           enabled={settings.p1_enabled}
           onToggle={(v) => setSettings({...settings, p1_enabled: v})}
           fields={[
@@ -207,6 +212,7 @@ function SettingsContent() {
         {/* P2 */}
         <StrategySection
           title="P2: Cross-exchange Hedge"
+          description="異なる取引所間のFR差を利用。片方でロング、もう片方でショートでヘッジ。"
           enabled={settings.p2_enabled}
           onToggle={(v) => setSettings({...settings, p2_enabled: v})}
           fields={[
@@ -219,6 +225,7 @@ function SettingsContent() {
         {/* P3 */}
         <StrategySection
           title="P3: Single-leg FR"
+          description="FR率が高い銘柄で片足エントリー。利益率は高いが価格変動リスクあり。"
           enabled={settings.p3_enabled}
           onToggle={(v) => setSettings({...settings, p3_enabled: v})}
           fields={[
@@ -233,20 +240,36 @@ function SettingsContent() {
           <div className="flex items-center justify-between">
             <div>
               <span className="font-medium">Auto Trading</span>
-              <p className="text-xs text-gray-500 mt-0.5">Automatically scan and enter positions before FR settlement</p>
+              {!isPro && <span className="ml-2 px-2 py-0.5 bg-yellow-900/30 text-yellow-400 rounded text-xs">Pro</span>}
+              <p className="text-xs text-gray-500 mt-0.5">FR決済30分前に自動スキャン → 条件合致で自動エントリー → 決済後に自動クローズ。</p>
             </div>
-            <button
-              onClick={() => {
-                const val = !settings.auto_enabled;
-                api.post(val ? "/settings/auto/on" : "/settings/auto/off").catch(() => {});
-                setSettings({...settings, auto_enabled: val});
-              }}
-              className={`relative w-12 h-6 rounded-full transition ${settings.auto_enabled ? "bg-green-600" : "bg-gray-700"}`}
-            >
-              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${settings.auto_enabled ? "translate-x-6" : "translate-x-0.5"}`} />
-            </button>
+            {isPro ? (
+              <button
+                onClick={() => {
+                  const val = !settings.auto_enabled;
+                  api.post(val ? "/settings/auto/on" : "/settings/auto/off").catch(() => {});
+                  setSettings({...settings, auto_enabled: val});
+                }}
+                className={`relative w-12 h-6 rounded-full transition ${settings.auto_enabled ? "bg-green-600" : "bg-gray-700"}`}
+              >
+                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${settings.auto_enabled ? "translate-x-6" : "translate-x-0.5"}`} />
+              </button>
+            ) : (
+              <div className="relative w-12 h-6 rounded-full bg-gray-800 opacity-50 cursor-not-allowed">
+                <span className="absolute top-0.5 left-0.5 w-5 h-5 bg-gray-600 rounded-full" />
+              </div>
+            )}
           </div>
-          {settings.auto_enabled && (
+          {!isPro && (
+            <div className="mt-3 p-4 bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/30 rounded-lg">
+              <p className="text-sm text-gray-300 mb-2">Auto Tradingは<strong className="text-blue-400">Proプラン</strong>で利用可能です。</p>
+              <p className="text-xs text-gray-500 mb-3">月額$29で全自動運用・通知機能が解放されます。</p>
+              <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition">
+                Upgrade to Pro
+              </button>
+            </div>
+          )}
+          {isPro && settings.auto_enabled && (
             <div className="grid grid-cols-2 gap-3 mt-3">
               <div>
                 <label className={labelCls}>Max Per Trade ($)</label>
@@ -307,19 +330,21 @@ function SettingsContent() {
   );
 }
 
-function StrategySection({ title, enabled, onToggle, fields }: {
+function StrategySection({ title, description, enabled, onToggle, fields }: {
   title: string;
+  description?: string;
   enabled: boolean;
   onToggle: (v: boolean) => void;
   fields: { label: string; value: number; onChange: (v: number) => void }[];
 }) {
   return (
     <div className="border-t border-gray-800 pt-4">
-      <label className="flex items-center gap-3 mb-3 cursor-pointer">
+      <label className="flex items-center gap-3 mb-1 cursor-pointer">
         <input type="checkbox" checked={enabled} onChange={e => onToggle(e.target.checked)}
           className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500" />
         <span className="font-medium">{title}</span>
       </label>
+      {description && <p className="text-xs text-gray-500 pl-7 mb-3">{description}</p>}
       {enabled && (
         <div className="grid grid-cols-3 gap-3 pl-7">
           {fields.map((f) => (
@@ -338,7 +363,7 @@ function StrategySection({ title, enabled, onToggle, fields }: {
 export default function SettingsPage() {
   return (
     <AuthGuard>
-      <SettingsContent />
+      {(user: User) => <SettingsContent user={user} />}
     </AuthGuard>
   );
 }

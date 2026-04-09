@@ -1,8 +1,13 @@
 "use client";
 import { useAuth } from "@/hooks/useAuth";
 import { Navbar } from "./Navbar";
+import type { User } from "@/lib/types";
 
-export function AuthGuard({ children }: { children: React.ReactNode }) {
+interface AuthGuardProps {
+  children: React.ReactNode | ((user: User) => React.ReactNode);
+}
+
+export function AuthGuard({ children }: AuthGuardProps) {
   const { user, loading, logout } = useAuth();
 
   if (loading) {
@@ -22,7 +27,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar userName={user.display_name || user.email} onLogout={() => { logout(); window.location.href = "/"; }} />
-      <main className="max-w-6xl mx-auto p-6">{children}</main>
+      <main className="max-w-6xl mx-auto p-6">
+        {typeof children === "function" ? children(user) : children}
+      </main>
     </>
   );
 }

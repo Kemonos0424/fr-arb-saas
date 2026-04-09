@@ -100,7 +100,8 @@ function ScanContent() {
 
       {/* Opportunities */}
       <section>
-        <h2 className="text-lg font-semibold mb-3">Opportunities ({opportunities.length})</h2>
+        <h2 className="text-lg font-semibold mb-1">Opportunities ({opportunities.length})</h2>
+        <p className="text-xs text-gray-500 mb-3">FR差が設定閾値を超えた裁定機会。Entryボタンで手動エントリーできます。</p>
         {opportunities.length === 0 ? (
           <div className="bg-gray-900 rounded-xl p-8 border border-gray-800 text-center text-gray-500">
             No opportunities found. Click Scan Now to check.
@@ -136,7 +137,8 @@ function ScanContent() {
 
       {/* FR Rates Table */}
       <section>
-        <h2 className="text-lg font-semibold mb-3">FR Rates</h2>
+        <h2 className="text-lg font-semibold mb-1">FR Rates</h2>
+        <p className="text-xs text-gray-500 mb-3">各取引所のFunding Rate（資金調達率）一覧。正=ロングが支払い、負=ショートが支払い。</p>
         {scanResults.length === 0 ? (
           <div className="bg-gray-900 rounded-xl p-8 border border-gray-800 text-center text-gray-500">
             No scan data yet. Click Scan Now.

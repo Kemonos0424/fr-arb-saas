@@ -50,6 +50,7 @@ function DashboardContent() {
       )}
 
       {/* P&L Summary */}
+      <p className="text-xs text-gray-500">本日のFR裁定による損益とトレード回数、オープンポジション数を表示します。</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
           <div className="text-xs text-gray-500 uppercase tracking-wide">Today P&L</div>
@@ -88,7 +89,8 @@ function DashboardContent() {
 
       {/* Open Positions */}
       <section>
-        <h2 className="text-lg font-semibold mb-3">Open Positions</h2>
+        <h2 className="text-lg font-semibold mb-1">Open Positions</h2>
+        <p className="text-xs text-gray-500 mb-3">現在保有中のヘッジポジション。FR決済後に自動またはCloseボタンでクローズできます。</p>
         {positions.length === 0 ? (
           <div className="bg-gray-900 rounded-xl p-8 border border-gray-800 text-center text-gray-500">
             No open positions
@@ -121,7 +123,10 @@ function DashboardContent() {
       {/* Opportunities */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">Opportunities</h2>
+          <div>
+            <h2 className="text-lg font-semibold">Opportunities</h2>
+            <p className="text-xs text-gray-500">FR差が閾値を超えた銘柄。Scan NowでFRを再取得。</p>
+          </div>
           <button
             onClick={triggerScan}
             disabled={scanning}
