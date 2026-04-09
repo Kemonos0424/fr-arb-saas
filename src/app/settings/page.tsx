@@ -6,6 +6,15 @@ import type { User, UserSettings, ApiKeyStatus } from "@/lib/types";
 
 const EXCHANGES = ["bingx", "bitget", "bitmart"] as const;
 
+interface ApiTokenInfo {
+  id: string;
+  name: string;
+  is_revoked: boolean;
+  last_used: string | null;
+  expires_at: string | null;
+  created_at: string;
+}
+
 function SettingsContent({ user }: { user: User }) {
   const isPro = user.plan === "pro";
   const [settings, setSettings] = useState<UserSettings | null>(null);
@@ -17,10 +26,15 @@ function SettingsContent({ user }: { user: User }) {
   const [keyModal, setKeyModal] = useState<string | null>(null);
   const [keyForm, setKeyForm] = useState({ api_key: "", secret_key: "", passphrase: "", memo: "" });
   const [keySaving, setKeySaving] = useState(false);
+  const [apiTokens, setApiTokens] = useState<ApiTokenInfo[]>([]);
+  const [newTokenName, setNewTokenName] = useState("");
+  const [createdToken, setCreatedToken] = useState<string | null>(null);
+  const [tokenCreating, setTokenCreating] = useState(false);
 
   useEffect(() => {
     api.get<UserSettings>("/settings").then(setSettings).catch(() => {});
     api.get<ApiKeyStatus[]>("/keys").then(setKeys).catch(() => {});
+    api.get<ApiTokenInfo[]>("/tokens").then(setApiTokens).catch(() => {});
   }, []);
 
   if (!settings) {
@@ -325,6 +339,77 @@ function SettingsContent({ user }: { user: User }) {
             </div>
           )}
         </div>
+      </section>
+
+      {/* API Tokens for Desktop Client */}
+      <section className="bg-gray-900 rounded-xl p-6 border border-gray-800 space-y-4">
+        <h2 className="text-lg font-semibold">API Tokens</h2>
+        <p className="text-xs text-gray-500">デスクトップアプリがシグナルAPIに接続するためのトークン。生成後は1回だけ表示されます。</p>
+
+        {/* Create Token */}
+        <div className="flex gap-3">
+          <input type="text" value={newTokenName} onChange={e => setNewTokenName(e.target.value)}
+            placeholder="Token name (e.g. Desktop Client)" className={`flex-1 ${inputCls}`} />
+          <button onClick={async () => {
+            if (!newTokenName.trim()) return;
+            setTokenCreating(true);
+            try {
+              const r = await api.post<{ token: string; id: string }>("/tokens", { name: newTokenName });
+              setCreatedToken(r.token);
+              setNewTokenName("");
+              api.get<ApiTokenInfo[]>("/tokens").then(setApiTokens).catch(() => {});
+            } finally {
+              setTokenCreating(false);
+            }
+          }} disabled={tokenCreating || !newTokenName.trim()}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 rounded-lg text-sm font-medium transition whitespace-nowrap">
+            {tokenCreating ? "Creating..." : "Generate Token"}
+          </button>
+        </div>
+
+        {/* Show created token (once) */}
+        {createdToken && (
+          <div className="p-4 bg-green-900/20 border border-green-800/50 rounded-lg space-y-2">
+            <p className="text-sm text-green-400 font-medium">Token created! Copy it now — it won&apos;t be shown again.</p>
+            <div className="flex gap-2">
+              <code className="flex-1 px-3 py-2 bg-gray-800 rounded font-mono text-xs break-all">{createdToken}</code>
+              <button onClick={() => { navigator.clipboard.writeText(createdToken); }}
+                className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-xs">Copy</button>
+            </div>
+            <button onClick={() => setCreatedToken(null)} className="text-xs text-gray-500 hover:text-gray-300">Dismiss</button>
+          </div>
+        )}
+
+        {/* Token List */}
+        {apiTokens.length > 0 && (
+          <div className="space-y-2">
+            {apiTokens.map((t) => (
+              <div key={t.id} className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
+                <div>
+                  <span className="font-medium text-sm">{t.name}</span>
+                  <div className="flex gap-3 text-xs text-gray-500 mt-0.5">
+                    <span>Created: {new Date(t.created_at).toLocaleDateString("ja-JP")}</span>
+                    {t.last_used && <span>Last used: {new Date(t.last_used).toLocaleDateString("ja-JP")}</span>}
+                    {t.expires_at && <span>Expires: {new Date(t.expires_at).toLocaleDateString("ja-JP")}</span>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {t.is_revoked ? (
+                    <span className="px-2 py-0.5 bg-red-900/50 text-red-400 rounded text-xs">Revoked</span>
+                  ) : (
+                    <>
+                      <span className="px-2 py-0.5 bg-green-900/50 text-green-400 rounded text-xs">Active</span>
+                      <button onClick={async () => {
+                        await api.delete(`/tokens/${t.id}`);
+                        api.get<ApiTokenInfo[]>("/tokens").then(setApiTokens).catch(() => {});
+                      }} className="px-2 py-1 text-xs text-red-400 hover:bg-red-900/30 rounded">Revoke</button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

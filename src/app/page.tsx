@@ -80,23 +80,23 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800 text-center">
             <div className="w-12 h-12 bg-blue-900/30 rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl">1</div>
-            <h3 className="font-semibold mb-2">FR差を検出</h3>
+            <h3 className="font-semibold mb-2">シグナル受信</h3>
             <p className="text-gray-400 text-sm">
-              BingX, Bitget, BitMart, Bybit, MEXC, Phemex の6取引所からFunding Rate（資金調達率）を一括取得。取引所間の差を自動分析します。
+              6取引所のFR（資金調達率）をクラウドでリアルタイム監視。裁定機会をシグナルAPIで配信します。
             </p>
           </div>
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800 text-center">
             <div className="w-12 h-12 bg-green-900/30 rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl">2</div>
-            <h3 className="font-semibold mb-2">ヘッジエントリー</h3>
+            <h3 className="font-semibold mb-2">デスクトップアプリが自動発注</h3>
             <p className="text-gray-400 text-sm">
-              FR率が高い取引所でショート、低い取引所でロング。同じ銘柄を両建てするので価格変動リスクはほぼゼロです。
+              あなたのPCで動くElectronアプリがシグナルを受信し、取引所APIで自動発注。APIキーは手元に保管。
             </p>
           </div>
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800 text-center">
             <div className="w-12 h-12 bg-purple-900/30 rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl">3</div>
             <h3 className="font-semibold mb-2">FR決済で利益確定</h3>
             <p className="text-gray-400 text-sm">
-              8時間ごとのFR決済タイミングで差額を受け取り。決済完了後に自動クローズし、利益を確定します。
+              8時間ごとのFR決済で差額を自動受け取り。決済後にポジションを自動クローズし、利益を確定します。
             </p>
           </div>
         </div>
@@ -127,12 +127,12 @@ export default function LandingPage() {
             <div className="text-lg font-bold mb-1">Free</div>
             <div className="text-3xl font-bold mb-4">$0<span className="text-sm text-gray-500 font-normal">/mo</span></div>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li className="flex items-center gap-2"><span className="text-green-400">+</span> FRスキャン・分析</li>
-              <li className="flex items-center gap-2"><span className="text-green-400">+</span> 取引所APIキー登録</li>
-              <li className="flex items-center gap-2"><span className="text-green-400">+</span> 手動エントリー・決済</li>
-              <li className="flex items-center gap-2"><span className="text-green-400">+</span> ポジション管理</li>
-              <li className="flex items-center gap-2 text-gray-600"><span>-</span> Auto Trading</li>
-              <li className="flex items-center gap-2 text-gray-600"><span>-</span> Telegram/Discord通知</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">+</span> P3シグナル（片足FR）</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">+</span> 5分間隔更新・10件上限</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">+</span> Web ダッシュボード</li>
+              <li className="flex items-center gap-2 text-gray-600"><span>-</span> P1/P2シグナル</li>
+              <li className="flex items-center gap-2 text-gray-600"><span>-</span> デスクトップアプリ</li>
+              <li className="flex items-center gap-2 text-gray-600"><span>-</span> 通知機能</li>
             </ul>
           </div>
           <div className="bg-gray-900 rounded-xl p-6 border-2 border-blue-600 relative">
@@ -141,9 +141,10 @@ export default function LandingPage() {
             <div className="text-3xl font-bold mb-4">$29<span className="text-sm text-gray-500 font-normal">/mo</span></div>
             <ul className="space-y-2 text-sm text-gray-300">
               <li className="flex items-center gap-2"><span className="text-green-400">+</span> Freeの全機能</li>
-              <li className="flex items-center gap-2"><span className="text-blue-400">+</span> Auto Trading（全自動運用）</li>
+              <li className="flex items-center gap-2"><span className="text-blue-400">+</span> P1/P2/P3 全シグナル</li>
+              <li className="flex items-center gap-2"><span className="text-blue-400">+</span> 30秒更新・500件上限</li>
+              <li className="flex items-center gap-2"><span className="text-blue-400">+</span> デスクトップアプリ（自動発注）</li>
               <li className="flex items-center gap-2"><span className="text-blue-400">+</span> Telegram/Discord通知</li>
-              <li className="flex items-center gap-2"><span className="text-blue-400">+</span> 優先サポート</li>
             </ul>
           </div>
         </div>
